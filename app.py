@@ -1,9 +1,19 @@
 import openai
 import streamlit as st
 import time
+from dotenv import load_dotenv
+import os
 
-# 從 Streamlit Secrets 讀取 API Key
-openai.api_key = st.secrets["openai"]["api_key"]
+# 載入環境變數
+load_dotenv()
+
+# 設定 API Key
+try:
+    # 嘗試從 Streamlit Secrets 讀取
+    openai.api_key = st.secrets["openai"]["api_key"]
+except:
+    # 如果沒有 Secrets，則從環境變數讀取
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 初始化 session_state
 # 使用 session_state 來保存對話歷史和當前回應
