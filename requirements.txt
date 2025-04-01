@@ -1,4 +1,4 @@
 # 套件版本
 streamlit==1.32.0
-openai==0.28.1
+openai==1.12.0
 python-dotenv==1.0.1
