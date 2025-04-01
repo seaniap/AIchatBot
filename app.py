@@ -11,9 +11,13 @@ load_dotenv()
 try:
     # 嘗試從 Streamlit Secrets 讀取
     openai.api_key = st.secrets["openai"]["api_key"]
-except:
+except Exception as e:
     # 如果沒有 Secrets，則從環境變數讀取
     openai.api_key = os.getenv("OPENAI_API_KEY")
+    if not openai.api_key:
+        st.error("請設定 OpenAI API Key！")
+        st.info("在 Streamlit Cloud 上，請在專案設定中的 Secrets 加入：\n```toml\n[openai]\napi_key = \"你的-OpenAI-API-Key\"\n```")
+        st.stop()
 
 # 初始化 session_state
 # 使用 session_state 來保存對話歷史和當前回應
@@ -25,15 +29,19 @@ if "current_response" not in st.session_state:
 
 def stream_response(messages):
     """使用 yield 處理串流回應"""
-    stream = openai.chat.completions.create(
-        model="gpt-4",
-        messages=messages,
-        stream=True
-    )
-    
-    for chunk in stream:
-        if chunk.choices[0].delta.content is not None:
-            yield chunk.choices[0].delta.content
+    try:
+        stream = openai.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            stream=True
+        )
+        
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+    except Exception as e:
+        st.error(f"API 呼叫錯誤：{str(e)}")
+        yield "抱歉，發生錯誤，請稍後再試。"
 
 # 建立使用者輸入介面
 user_input = st.text_input("請輸入您的問題：")
