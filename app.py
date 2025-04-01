@@ -1,5 +1,5 @@
 #import openai
-from openai import OpenAI
+import openai
 import streamlit as st
 import time
 from dotenv import load_dotenv
@@ -28,8 +28,8 @@ def validate_api_key(api_key):
     """驗證 API Key 是否有效"""
     try:
         # 使用一個簡單的 API 呼叫來驗證
-        client = OpenAI(api_key=api_key)
-        client.chat.completions.create(
+        openai.api_key = api_key
+        openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": "test"}],
             max_tokens=1
@@ -47,9 +47,6 @@ api_key = get_api_key()
 if not validate_api_key(api_key):
     st.stop()
 
-# 初始化 OpenAI 客戶端
-client = OpenAI(api_key=api_key)
-
 # 初始化 session_state
 # 使用 session_state 來保存對話歷史和當前回應
 # 這樣在 Streamlit 重新渲染時不會丟失資料
@@ -61,7 +58,7 @@ if "current_response" not in st.session_state:
 def stream_response(messages):
     """使用 yield 處理串流回應"""
     try:
-        stream = client.chat.completions.create(
+        stream = openai.ChatCompletion.create(
             model="gpt-4",
             messages=messages,
             stream=True
