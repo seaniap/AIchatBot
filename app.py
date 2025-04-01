@@ -1,3 +1,4 @@
+#import openai
 import openai
 import streamlit as st
 import time
@@ -10,6 +11,7 @@ load_dotenv()
 # 設定 API Key
 try:
     # 嘗試從 Streamlit Secrets 讀取
+    #openai.api_key = st.secrets["openai"]["api_key"]
     openai.api_key = st.secrets["openai"]["api_key"]
 except Exception as e:
     # 如果沒有 Secrets，則從環境變數讀取
@@ -30,7 +32,7 @@ if "current_response" not in st.session_state:
 def stream_response(messages):
     """使用 yield 處理串流回應"""
     try:
-        stream = openai.chat.completions.create(
+        stream = openai.ChatCompletion.create(
             model="gpt-4",
             messages=messages,
             stream=True
