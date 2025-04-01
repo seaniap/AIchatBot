@@ -15,7 +15,7 @@ if "current_response" not in st.session_state:
 
 def stream_response(messages):
     """使用 yield 處理串流回應"""
-    stream = openai.chat.completions.create(
+    stream = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages,
         stream=True
