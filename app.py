@@ -12,7 +12,7 @@ load_dotenv()
 try:
     # 嘗試從 Streamlit Secrets 讀取
     openai.api_key = st.secrets["openai"]["api_key"]
-except Exception as e:
+except Exception:
     # 如果沒有 Secrets，則從環境變數讀取
     openai.api_key = os.getenv("OPENAI_API_KEY")
     if not openai.api_key:
@@ -41,7 +41,7 @@ def stream_response(messages):
         )
         
         for chunk in stream:
-            if chunk.choices[0].delta.content is not None:
+            if hasattr(chunk.choices[0].delta, 'content') and chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
     except Exception as e:
         st.error(f"API 呼叫錯誤：{str(e)}")
