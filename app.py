@@ -5,23 +5,47 @@ import time
 from dotenv import load_dotenv
 import os
 
-# 載入環境變數
-load_dotenv()
-
-# 設定 API Key
-try:
-    # 嘗試從 Streamlit Secrets 讀取
-    openai.api_key = st.secrets["openai"]["api_key"]
-except Exception:
-    # 如果沒有 Secrets，則從環境變數讀取
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    if not openai.api_key:
+def get_api_key():
+    """取得 OpenAI API Key，優先從 Streamlit Secrets 讀取，其次從環境變數讀取"""
+    try:
+        # 嘗試從 Streamlit Secrets 讀取
+        api_key = st.secrets["openai"]["api_key"]
+    except Exception:
+        # 如果沒有 Secrets，則從環境變數讀取
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
         st.error("請設定 OpenAI API Key！")
         st.info(
             "在 Streamlit Cloud 上，請在專案設定中的 Secrets 加入：\n"
             "```toml\n[openai]\napi_key = \"你的-OpenAI-API-Key\"\n```"
         )
         st.stop()
+    
+    return api_key
+
+def validate_api_key(api_key):
+    """驗證 API Key 是否有效"""
+    try:
+        # 使用一個簡單的 API 呼叫來驗證
+        openai.api_key = api_key
+        openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": "test"}],
+            max_tokens=1
+        )
+        return True
+    except Exception as e:
+        st.error(f"API Key 驗證失敗：{str(e)}")
+        return False
+
+# 載入環境變數
+load_dotenv()
+
+# 設定並驗證 API Key
+api_key = get_api_key()
+if not validate_api_key(api_key):
+    st.stop()
 
 # 初始化 session_state
 # 使用 session_state 來保存對話歷史和當前回應
