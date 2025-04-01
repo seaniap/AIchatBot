@@ -11,14 +11,16 @@ load_dotenv()
 # 設定 API Key
 try:
     # 嘗試從 Streamlit Secrets 讀取
-    #openai.api_key = st.secrets["openai"]["api_key"]
     openai.api_key = st.secrets["openai"]["api_key"]
 except Exception as e:
     # 如果沒有 Secrets，則從環境變數讀取
     openai.api_key = os.getenv("OPENAI_API_KEY")
     if not openai.api_key:
         st.error("請設定 OpenAI API Key！")
-        st.info("在 Streamlit Cloud 上，請在專案設定中的 Secrets 加入：\n```toml\n[openai]\napi_key = \"你的-OpenAI-API-Key\"\n```")
+        st.info(
+            "在 Streamlit Cloud 上，請在專案設定中的 Secrets 加入：\n"
+            "```toml\n[openai]\napi_key = \"你的-OpenAI-API-Key\"\n```"
+        )
         st.stop()
 
 # 初始化 session_state
